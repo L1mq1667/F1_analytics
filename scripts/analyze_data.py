@@ -9,7 +9,7 @@ plt.style.use("seaborn-v0_8-whitegrid")
 df_res = pd.read_csv("f1_drivers_results.csv")
 df_aud = pd.read_csv("f1_audience.csv")
 df_2026 = df_res[df_res["season"] == 2026].copy()
-
+# 1. Топ-10 самых посещаемых Гран-при 2026 года
 top_gp = df_aud[df_aud["season"] == 2026].sort_values("circuit_weekend_attendance").tail(10)
 fig, ax = plt.subplots(figsize=(10, 6))
 bars = ax.barh(top_gp["grand_prix"], top_gp["circuit_weekend_attendance"] / 1000, color="#e10600")
@@ -23,7 +23,7 @@ for bar in bars:
 plt.tight_layout()
 plt.savefig("charts/top_attendance.png", dpi=150)
 plt.close()
-
+# 2. Динамика набора очков топ-5 пилотов в сезоне 2026
 top_drivers = df_2026.groupby("driver_code")["points"].sum().nlargest(5).index
 fig, ax = plt.subplots(figsize=(11, 6))
 for driver in top_drivers:
@@ -38,7 +38,7 @@ ax.legend(title="Пилот")
 plt.tight_layout()
 plt.savefig("charts/championship_battle.png", dpi=150)
 plt.close()
-
+# 3. Зависимость финишной позиции от стартовой решетки (2026)
 valid = df_2026[(df_2026["grid_position"] > 0) & (df_2026["status"] == "Finished")]
 corr = valid["grid_position"].corr(valid["finish_position"])
 fig, ax = plt.subplots(figsize=(9, 6))
@@ -53,7 +53,7 @@ ax.legend()
 plt.tight_layout()
 plt.savefig("charts/grid_vs_finish.png", dpi=150)
 plt.close()
-
+# 4. Распределение исходов гонок в сезоне 2026
 def group_status(status):
     if status == "Finished":
         return "Финишировал в круге"
@@ -75,7 +75,7 @@ ax.set_title("Распределение исходов гонок для пил
 plt.tight_layout()
 plt.savefig("charts/finish_status.png", dpi=150)
 plt.close()
-
+# 5. Сравнение команд: средние очки за этап (2025 vs 2026)
 team_pts = df_res.groupby(["season", "team"])["points"].sum().unstack(level=0)
 rounds_count = df_res.groupby("season")["round"].nunique()
 
@@ -107,7 +107,7 @@ ax.legend()
 plt.tight_layout()
 plt.savefig("charts/season_comparison_2025_2026.png", dpi=150)
 plt.close()
-
+# 6. Актуальность: сравнение посещаемости одних и тех же этапов (2025 vs 2026)
 piv = df_aud.pivot_table(index="grand_prix", columns="season", values="circuit_weekend_attendance").dropna()
 piv["pct_change"] = (piv[2026] - piv[2025]) / piv[2025] * 100
 piv = piv.sort_values("pct_change", ascending=True)
